@@ -130,10 +130,16 @@ DBI::dbExecute(con,'create index if not exists year_sku on sales (year, SKU) ;')
 DBI::dbDisconnect(con)
 
 ## duckdb example ----
+library(dbplyr)
+library(dplyr)
 duck = DBI::dbConnect(duckdb::duckdb(), dbdir="data", read_only=FALSE)
 system.time(
   DBI::dbWriteTable(duck, name = "sales",value = sales, overwrite=TRUE)
 )
+## thanks to @sfd99 comment, I noticed I had to rewrite this query a bit for duckdb.(see history for old version)
+head(DBI::dbGetQuery(duck, "SELECT SKU, year, sum(sales_units * item_price_eur) AS total_revenue FROM sales GROUP BY year, SKU"))
+
+
 sales_dtbl <- tbl(duck, "sales")
 # loading takes. 24 system, 49 user time.
 sales_dtbl %>% 
@@ -151,3 +157,4 @@ sales_dtbl %>%
 # loads in a few seconds!
 # duckdb is insanely fast!
 readr::write_csv(sales, "sales.csv") # writes 2.3 GB to disk.
+DBI::dbDisconnect(duck)
