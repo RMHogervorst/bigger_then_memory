@@ -2,3 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+sales.csv
+data
+data.wal
+sales.db
+env/
